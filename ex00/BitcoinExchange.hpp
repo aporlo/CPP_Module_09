@@ -8,7 +8,7 @@
 # include <stdio.h>
 # include <sstream>
 # include <cstdlib>
-# include <regex>
+// # include <regex>
 
 
 class BitcoinExchange
@@ -16,7 +16,7 @@ class BitcoinExchange
     private:
         std::string     _filedata;
         std::string     _fileinput;
-        std::map<std::string, float>    _btcData;
+        std::map<std::string, double>    _btcData;
 
         // void    _addData(std::string & s);
         // void    _cal(std::string & line);
@@ -33,12 +33,12 @@ class BitcoinExchange
 
         void    exchange(std::string fileName);
         std::string const getFile() const;
-        std::map<std::string, float>    const getData() const;
-        float                           getValue(std::string) const;
+        std::map<std::string, double>    const getData() const;
+        double                           getValue(std::string) const;
         bool    isDate(std::string  const s);
-        bool    isValue(std::string const s, bool isInt);
+        bool    isValue(std::string const s);
         int     convertDate(std::string date);
-        std::string closestDate(std::string date, std::map<std::string, float> data);
+        std::string closestDate(std::string date, std::map<std::string, double> data);
         void    addData(std::string & s);
         void    calculate(std::string & line);
         void    execfile(std::string &, void (BitcoinExchange::*)(std::string &));

@@ -1,11 +1,5 @@
 #include "BitcoinExchange.hpp"
 
-// bool    isDate(std::string  const s);
-// bool    isValue(std::string const s, bool isInt);
-// int     convertDate(std::string date);
-// std::string closestDate(std::string date, std::map<std::string, float> data);
-
-
 
 BitcoinExchange::BitcoinExchange():_filedata("data.csv") {
     execfile(this->_filedata, &BitcoinExchange::addData);
@@ -37,11 +31,11 @@ std::string const BitcoinExchange::getFile() const {
     return this->_filedata;
 }
 
-std::map<std::string, float> const BitcoinExchange::getData() const {
+std::map<std::string, double> const BitcoinExchange::getData() const {
     return this->_btcData;
 }
 
-float BitcoinExchange::getValue(std::string key) const {
+double BitcoinExchange::getValue(std::string key) const {
     return this->_btcData.at(key);
 }
 
@@ -53,12 +47,15 @@ void    BitcoinExchange::exchange(std::string fileName) {
 void    BitcoinExchange::addData(std::string  & s) {
     std::string key = s.substr(0, s.find(","));
     std::string value = s.substr(s.find(",") + 1);
+ 
     if (!isDate(key))
         return;
-    else if (!isValue(value, false))
-        return;
+    // else if (!isValue(value))
+    //     return;
     else
+    {
         this->_btcData[key] = std::atof(value.c_str());
+    }
 }
 
 void    BitcoinExchange::calculate(std::string & line) {
@@ -72,13 +69,14 @@ void    BitcoinExchange::calculate(std::string & line) {
         std::cerr << "Error: bad input => " << line << std::endl;
         return ((void)NULL);
     }
-    std::cout << "line " << line << std::endl;
+    // std::cout << "line " << line << std::endl;
     std::string date = line.substr(0, pipe - 1);
     std::string value = line.substr(pipe + 2);
     if (!isDate(date))
         return;
-    else if (!isValue(value, true))
+    else if (!isValue(value))
         return;
+
     float v = atof(value.c_str());
     if (v < 0)
     {
@@ -90,12 +88,11 @@ void    BitcoinExchange::calculate(std::string & line) {
         std::cerr << "Error: too large number" << std::endl;
         return ((void) NULL);
     }
-    float data;
+    double data;
     if (this->_btcData.find(date) != this->_btcData.end())
         data = this->_btcData.at(date);
     else
         data = this->_btcData.at(closestDate(date, this->_btcData));
-    std::cout <<"data: " << data << std::endl;
     std::cout << date << " => " << v << " => " << v*data << std::endl;
     
 }
@@ -159,21 +156,27 @@ bool    BitcoinExchange::isDate(std::string const s) {
     return true;
 }
 
-bool    BitcoinExchange::isValue(std::string const s, bool isInt) {
-    std::regex   integer_expr("[+-]?([0-9]*[.])?[0-9]+");
+bool    BitcoinExchange::isValue(std::string const s) {
     if(s.length() == 0 || s.empty())
     {
-        std::cerr << "Error: invalid value => " << s << std::endl;
+        std::cerr << "Error: invalid value" << s << std::endl;
         return (false);
     }
-    for (int i = 0; i < (int) s.length(); i++) {
-        if (!isInt && !regex_match(s, integer_expr))
+    for (int i = 0; i < (int) s.length(); i++)
+    {
+        if(!isdigit(s[i]))
         {
-            std::cerr << "Error: invalid value => " << s << std::endl;
-            return (false);
-        }
-        if (isInt && !regex_match(s, std::regex("[+-]?([0-9]*)")))
-			return (std::cerr << "Error: invalid value => " << s << std::endl, false);
+            if(!isdigit(s[i + 1]) && s[i + 1] && (s[i + 1] == '.'|| s[i + 1] == '-'))
+            {
+                std::cerr << "Error: invalid value" << std::endl;
+                return (false);
+            }
+            else if (((!isdigit(s[i]) && s[i] != '.' ) || s[i + 1] == '\n') && s[0] != '-')
+            {
+                std::cerr << "Error: invalid value" << std::endl;
+                return (false);
+            }
+        } 
     }
     return true;
 }
@@ -186,9 +189,9 @@ int BitcoinExchange::convertDate(std::string date) {
     return (year * 365 * dt) + (month * 30 * dt) + (day * dt);
 }
 
-std::string BitcoinExchange::closestDate(std::string date, std::map<std::string, float> data) {
+std::string BitcoinExchange::closestDate(std::string date, std::map<std::string, double> data) {
     int timestamp = convertDate(date);
-    for (std::map<std::string, float>::reverse_iterator it = data.rbegin(); it != data.rend(); ++it) {
+    for (std::map<std::string, double>::reverse_iterator it = data.rbegin(); it != data.rend(); ++it) {
         if (convertDate(it->first) < timestamp) {
             return it->first;
         }
