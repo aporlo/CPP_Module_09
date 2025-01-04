@@ -8,7 +8,7 @@
 # include <stdio.h>
 # include <sstream>
 # include <cstdlib>
-// # include <regex>
+
 
 
 class BitcoinExchange
@@ -17,11 +17,6 @@ class BitcoinExchange
         std::string     _filedata;
         std::string     _fileinput;
         std::map<std::string, double>    _btcData;
-
-        // void    _addData(std::string & s);
-        // void    _cal(std::string & line);
-        // void    _execfile(std::string &, void (BitcoinExchange::*)(std::string &));
-        // void    _execfile(std::string &);
     
     public:
         BitcoinExchange(void);
@@ -47,7 +42,7 @@ class BitcoinExchange
         class ReadfileException: public std::exception
         {
             public:
-                virtual const char* what() const throw() {return "Error: could noot open file";}
+                virtual const char* what() const throw() {return "Error: could not read file";}
         };    
 
 };
